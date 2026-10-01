@@ -166,7 +166,7 @@
   "gui.modernui.font_reloaded": "Reloaded default typeface list",
   "modernui.center.home.intro": "Modern UI - V: неофициальная ветка Modern UI, созданная для работы на VulkanMod.\n\n----\n* Оригинал рассчитан на OpenGL, который VulkanMod полностью заменяет: в этой сборке рендеринг интерфейса переведён на Vulkan и исправлены некоторые проблемы; всё остальное без изменений.\n* В эту ветку встроен HarmonyOS Sans SC, он же назначен шрифтом по умолчанию.",
   "modernui.center.home.notice": "Примечания\n\n----\n* Неофициальная ветка: не сообщайте о проблемах этой сборки автору оригинала BloCamLimb.\n* Нужна только для Minecraft 1.21.1 + Fabric + VulkanMod; без VulkanMod используйте оригинальный Modern UI.\n* В Vulkan часть возможностей всё ещё отсутствует (например, снимок интерфейса); настройки вроде списка шрифтов применяются после перезапуска. Шрифты: лицензия HarmonyOS Sans.",
-  "modernui.center.home.download_ss": "Загрузки этой ветки: %s %s",
+  "modernui.center.home.download_ss": "Страницы загрузки этой ветки: %s %s",
   "modernui.center.home.source": "Исходный код: %s",
-  "modernui.center.home.upstream_ss": "Обновления оригинала: %s %s"
+  "modernui.center.home.upstream_ss": "Страницы загрузки оригинала: %s %s"
 }

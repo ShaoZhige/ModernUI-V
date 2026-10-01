@@ -133,10 +133,6 @@ public class DashboardFragment extends Fragment {
                     params.bottomMargin = content.dp(40);
                     panel.addView(title, params);
                 }
-                // 撑开面板，把下面的链接推到底部
-                // Spacer that pushes the links below down to the bottom of the card.
-                var spacer = new View(context);
-                panel.addView(spacer, new LinearLayout.LayoutParams(MATCH_PARENT, 0, 1));
                 {
                     // 本分支在 CurseForge 与 Modrinth 的发布页
                     // Release pages of this fork on CurseForge and Modrinth.
@@ -144,8 +140,8 @@ public class DashboardFragment extends Fragment {
                     download.setMovementMethod(LinkMovementMethod.getInstance());
                     markflow.setMarkdown(download,
                             I18n.get("modernui.center.home.download_ss",
-                                    "[CURSEFORGE](https://www.curseforge.com/minecraft/mc-mods/modernui-v)",
-                                    "[MODRINTH](https://modrinth.com/project/modernui-v)"));
+                                    "[CurseForge](https://www.curseforge.com/minecraft/mc-mods/modernui-v)",
+                                    "[Modrinth](https://modrinth.com/project/modernui-v)"));
                     var params = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
                     params.bottomMargin = content.dp(8);
                     panel.addView(download, params);
@@ -157,7 +153,7 @@ public class DashboardFragment extends Fragment {
                     source.setMovementMethod(LinkMovementMethod.getInstance());
                     markflow.setMarkdown(source,
                             I18n.get("modernui.center.home.source",
-                                    "[GITHUB](https://github.com/ShaoZhige/ModernUI-V)"));
+                                    "[GitHub](https://github.com/ShaoZhige/ModernUI-V)"));
                     var params = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
                     params.bottomMargin = content.dp(8);
                     panel.addView(source, params);
@@ -171,6 +167,10 @@ public class DashboardFragment extends Fragment {
                                     "[Modrinth](https://modrinth.com/mod/modern-ui)"));
                     panel.addView(info, new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
                 }
+                // 三行链接紧跟标题，剩余空间留在它们之后
+                // The three link rows follow the title; leftover space stays below them.
+                var spacer = new View(context);
+                panel.addView(spacer, new LinearLayout.LayoutParams(MATCH_PARENT, 0, 1));
 
                 ThemeControl.makeElevatedCard(context, panel, value);
                 var params = new LinearLayout.LayoutParams(MATCH_PARENT, content.dp(420), 1);

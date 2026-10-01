@@ -202,5 +202,5 @@
   "modernui.center.home.notice": "注意事项\n\n----\n* 非官方分支：请勿向原作者 BloCamLimb 反馈本版本的问题。\n* 仅 Minecraft 1.21.1 + Fabric + VulkanMod 需要它；不装 VulkanMod 请用原版。\n* Vulkan 下少数功能仍缺失（如界面截图）；字体列表等设置需重启生效。字体许可见 HarmonyOS Sans 协议。",
   "modernui.center.home.download_ss": "本分支发布页：%s %s",
   "modernui.center.home.source": "源代码：%s",
-  "modernui.center.home.upstream_ss": "原模组发布：%s %s"
+  "modernui.center.home.upstream_ss": "原模组发布页：%s %s"
 }
