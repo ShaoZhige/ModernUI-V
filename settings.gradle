@@ -1,0 +1,31 @@
+pluginManagement {
+    repositories {
+        maven {
+            url = uri("${rootDir}/libs/maven")
+        }
+        maven {
+            url 'https://maven.minecraftforge.net/'
+        }
+        maven {
+            url 'https://maven.fabricmc.net/'
+        }
+        maven {
+            url 'https://maven.architectury.dev/'
+        }
+        maven {
+            url 'https://repo.spongepowered.org/repository/maven-public/'
+        }
+        maven {
+            url 'https://repo.sleeping.town/'
+            content {
+                includeGroup 'agency.highlysuspect'
+                includeGroup 'agency.highlysuspect.minivan'
+            }
+        }
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'ModernUI-V'
+
+include 'common'

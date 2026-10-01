@@ -1,0 +1,321 @@
+import net.fabricmc.loom.task.RemapJarTask
+
+plugins {
+    // 版本号必须写在这里：上游是靠根工程统一声明的，本仓库把 Fabric 模块提到了根工程，
+    // 没有父工程可继承，少了版本号 Gradle 解析不到插件。
+    id 'dev.architectury.loom' version '1.7-SNAPSHOT'
+    //id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
+    // 上游的 maven-publish 是根工程声明的，文件末尾的 publishing {} 依赖它
+    id 'maven-publish'
+}
+
+// 上游这些公共配置写在根工程的 subprojects {} 里，本仓库根工程就是 Fabric 模块，
+// 所以改用 allprojects {} 覆盖根模块与 common 子模块，内容与上游保持一致。
+allprojects {
+    group = 'icyllis.modernui'
+
+    // 上游的 subprojects {} 里第一件事就是 apply plugin: 'java'，
+    // common 子模块自己只声明了 minivan 插件，没有 java 插件，这里必须补上。
+    apply plugin: 'java'
+
+    java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+    // 上游写在根工程的 subprojects {} 里，sourcesJar / javadoc 任务依赖它存在
+    java.withSourcesJar()
+
+    tasks.withType(JavaCompile).configureEach {
+        it.options.encoding = "UTF-8"
+        it.options.release.set(21)
+    }
+
+    dependencies {
+        compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+        compileOnly 'org.jetbrains:annotations:26.0.2'
+        testCompileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+        testCompileOnly 'org.jetbrains:annotations:26.0.2'
+    }
+}
+
+version = "${minecraft_version}-${mod_version}" as String
+
+// 分叉版产物改名：ModernUI-V-Fabric-1.21.1-3.13.0.1-universal.jar
+// （gradle 项目名本身保持 ModernUI-Fabric 不动，否则构建任务路径 :ModernUI-Fabric:remapJar 也会跟着变）
+base {
+    archivesName.set("ModernUI-V-Fabric")
+}
+
+configurations {
+    shadow
+}
+
+loom {
+    silentMojangMappingsLicense()
+    accessWidenerPath = file("src/main/resources/modernui.accesswidener")
+    runConfigs.each { it.setIdeConfigGenerated(true) } // Uncomment this if run configs not generated
+    // 上游写的是 ":${name}:classes"（模块是 :ModernUI-Fabric），
+    // 本仓库 Fabric 模块就是根工程，路径是 ":"，所以这里只能是 ":classes"。
+    addTaskBeforeRun(":classes")
+}
+
+repositories {
+    // 本地兜底仓库：raw.githubusercontent.com（Fuzss 的 maven，提供 forgeconfigapiport）
+    // 经 SteamTools 加速时经常读超时，这里预先放一份，保证构建可复现、可离线。
+    // 见 libs/maven/fuzs/forgeconfigapiport/forgeconfigapiport-fabric/21.1.0/
+    maven {
+        url = uri("${rootProject.projectDir}/libs/maven")
+    }
+    maven {
+        url 'https://maven.parchmentmc.org/'
+        content {
+            includeGroup 'org.parchmentmc.data'
+        }
+    }
+    maven {
+        url 'https://maven.terraformersmc.com/releases/'
+        content {
+            includeGroup 'com.terraformersmc'
+        }
+    }
+    maven {
+        url 'https://raw.githubusercontent.com/Fuzss/modresources/main/maven/'
+        content {
+            includeGroup 'fuzs.forgeconfigapiport'
+        }
+    }
+    maven {
+        url 'https://maven.izzel.io/releases/'
+    }
+    mavenLocal()
+    flatDir {
+        dir "${rootProject.projectDir}/libs"
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.officialMojangMappings()
+
+    modImplementation "net.fabricmc:fabric-loader:0.16.5"
+    modApi "net.fabricmc.fabric-api:fabric-api:0.104.0+1.21.1"
+
+    modImplementation "com.terraformersmc:modmenu:11.0.2"
+    modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:21.1.0"
+
+    implementation project(':common')
+
+    // VulkanMod 只作编译期依赖，玩家自己装。
+    // 用 files(...) 而不是 modCompileOnly：VulkanMod 的类（VkGlTexture / DeviceManager /
+    // Queue / MemoryManager / VulkanImage …）全部不引用任何 Minecraft 类型，
+    // 所以不需要经过 loom 重映射，直接拿原始 jar 编译即可。
+    // 引用它的 VulkanModIntegration 是惰性加载的，没装 VulkanMod 时不会触发类加载。
+    compileOnly files("${rootProject.projectDir}/libs/VulkanMod-0.6.7+1.21.1.jar")
+
+    // 本模块会把 common 的源码一起编译（见文件末尾的 source(...)），
+    // 所以 common 需要的东西这里也得有一份：
+    //   * arc3d-vulkan 把 lwjgl-vulkan / lwjgl-vma 声明成 provided，使用方要自己提供；
+    //     而 MC 1.21.1 的 LWJGL 里没有 lwjgl-vulkan。
+    //   * Mixin 注解处理器缺 asm-util（原因与版本选择见 common/build.gradle 的同名注释）。
+    compileOnly "org.lwjgl:lwjgl-vulkan:3.3.3"
+    compileOnly "org.lwjgl:lwjgl-vma:3.3.3"
+
+    annotationProcessor 'org.ow2.asm:asm:9.6'
+    annotationProcessor 'org.ow2.asm:asm-tree:9.6'
+    annotationProcessor 'org.ow2.asm:asm-analysis:9.6'
+    annotationProcessor 'org.ow2.asm:asm-commons:9.6'
+    annotationProcessor 'org.ow2.asm:asm-util:9.6'
+
+    ["dev.icyllis:arc3d-compiler"].each {
+        implementation(it + ":${arc3d_version}")
+        include(it + ":${arc3d_version}")
+    }
+    ["dev.icyllis:arc3d-core",
+     "dev.icyllis:arc3d-sketch",
+     "dev.icyllis:arc3d-engine",
+     "dev.icyllis:arc3d-granite",
+     "dev.icyllis:arc3d-opengl",
+     "dev.icyllis:arc3d-vulkan"].each {
+        implementation(it + ":${arc3d_version}")
+        shadow(it + ":${arc3d_version}") {
+            transitive = false
+        }
+    }
+    implementation("dev.icyllis:modernui-core:${core_version}")
+    shadow("dev.icyllis:modernui-core:${core_version}") {
+        transitive = false
+    }
+    implementation("icyllis.modernui:ModernUI-Markflow:3.12.0") {
+        exclude group: 'icyllis.modernui'
+    }
+    shadow("icyllis.modernui:ModernUI-Markflow:3.12.0") {
+        transitive = false
+    }
+
+    //implementation("com.vladsch.flexmark:flexmark:${flexmark_version}")
+
+    /*include "com.vladsch.flexmark:flexmark:${flexmark_version}"
+    include "com.vladsch.flexmark:flexmark-util-ast:${flexmark_version}"
+    include "com.vladsch.flexmark:flexmark-util-builder:${flexmark_version}"
+    include "com.vladsch.flexmark:flexmark-util-collection:${flexmark_version}"
+    include "com.vladsch.flexmark:flexmark-util-data:${flexmark_version}"
+    include "com.vladsch.flexmark:flexmark-util-dependency:${flexmark_version}"
+    include "com.vladsch.flexmark:flexmark-util-format:${flexmark_version}"
+    include "com.vladsch.flexmark:flexmark-util-html:${flexmark_version}"
+    include "com.vladsch.flexmark:flexmark-util-misc:${flexmark_version}"
+    include "com.vladsch.flexmark:flexmark-util-sequence:${flexmark_version}"
+    include "com.vladsch.flexmark:flexmark-util-visitor:${flexmark_version}"*/
+    include "org.commonmark:commonmark:${commonmark_version}"
+
+    // 上游这里写的是 shadow ':ModernUI-Fonts-5.0'，即依赖一个**同级独立仓库**的子项目
+    // （ModernUI-Fonts 是作者单独维护的字体资源仓库，并不在本仓库的 settings.gradle 里；
+    // forge / neoforge 两个模块也是同样的写法）。这份源码快照里没有那个子项目，
+    // 直接构建会在解析 shadow 配置时抛：
+    //   Project with path ':ModernUI-Fonts-5.0' could not be found
+    // 好在 libs/ 下已经有构建好的 ModernUI-Fonts-5.0.jar —— 里面只有 assets/modernui/**
+    // （emoji 贴图与字体文件），既没有 fabric.mod.json 也没有 class 文件，
+    // 本来就是要被摊平进产物里的资源包，所以改成对本地文件的依赖，语义与上游一致。
+    shadow files("${rootProject.projectDir}/libs/ModernUI-Fonts-5.0.jar")
+}
+
+tasks.withType(JavaCompile).configureEach {
+    source(project(":common").sourceSets.main.allSource)
+}
+
+tasks.withType(Javadoc).configureEach {
+    source(project(":common").sourceSets.main.allJava)
+}
+
+sourcesJar {
+    from project(":common").sourceSets.main.allSource
+}
+
+tasks.withType(ProcessResources).configureEach {
+    from project(":common").sourceSets.main.resources
+}
+
+shadowJar {
+    archiveClassifier.set("shadow")
+    configurations = [project.configurations.shadow]
+
+    /*dependencies {
+        exclude 'icu4j-59.1.jar'
+        exclude 'commons-logging-1.2.jar'
+    }
+
+    relocate 'com.google.errorprone.annotations', 'icyllis.annotations'
+    relocate 'org.checkerframe', 'icyllis.checkerframe'
+    relocate 'com.github.benmanes.caffeine', 'icyllis.caffeine'
+    relocate 'com.vladsch.flexmark', 'icyllis.flexmark'
+    relocate 'org.intellij.lang.annotations', 'icyllis.annotations'
+    relocate 'org.jetbrains.annotations', 'icyllis.annotations'
+    relocate 'io.reactivex.rxjava3', 'icyllis.rxjava3'
+    relocate 'org.reactivestreams', 'icyllis.reactivestreams'
+
+    exclude 'META-INF/CHANGES'
+    exclude 'META-INF/DEPENDENCIES'
+    exclude 'META-INF/LICENSE**'
+    exclude 'META-INF/NOTICE**'
+    exclude 'META-INF/README**'
+    exclude 'META-INF/maven/**'*/
+}
+
+remapJar {
+    dependsOn(shadowJar)
+    inputFile.set(shadowJar.archiveFile)
+    archiveClassifier.set("universal")
+}
+
+tasks.register('remapMavenJar', RemapJarTask) {
+    dependsOn(jar)
+    inputFile.set(jar.archiveFile)
+    addNestedDependencies = false
+    /*targetNamespace.set("srg") // to srg names
+    remapAccessWidener.set(true)*/
+    archiveClassifier.set("maven")
+}
+
+if (project.hasProperty("keystore")) {
+    remapJar.doLast {
+        ant.signjar(
+                jar: remapJar.archiveFile.get(),
+                alias: project.getProperty("keystore_alias"),
+                storepass: project.getProperty("keystore_pass"),
+                keystore: project.getProperty("keystore"),
+                storetype: 'pkcs12',
+                keypass: project.getProperty("keystore_keypass"),
+                tsaurl: 'http://timestamp.digicert.com'
+        )
+    }
+}
+
+processResources {
+    inputs.property 'version', mod_version
+
+    filesMatching("fabric.mod.json") {
+        expand 'version': mod_version
+    }
+}
+
+jar {
+    manifest {
+        attributes(
+                "Specification-Title"     : project.name,
+                "Specification-Vendor"    : "BloCamLimb",
+                "Specification-Version"   : "2",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.version,
+                "Implementation-Vendor"   : "BloCamLimb",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        )
+    }
+}
+
+publishing {
+    publications {
+        mavenFabric(MavenPublication) {
+            artifact(remapMavenJar.archiveFile) {
+                builtBy build
+            }
+            artifact(sourcesJar.archiveFile) {
+                builtBy build
+                classifier 'sources'
+            }
+            artifactId = project.name
+            groupId = project.group
+            version = project.version
+
+            pom {
+                artifactId = project.name
+                groupId = project.group
+                version = project.version
+                name = rootProject.name
+                packaging = 'pom'
+                scm {
+                    url = 'https://github.com/BloCamLimb/ModernUI-MC.git'
+                }
+                issueManagement {
+                    system = 'github'
+                    url = 'https://github.com/BloCamLimb/ModernUI/issues'
+                }
+                licenses {
+                    license {
+                        name = 'LGPL-3.0-or-later'
+                        url = 'https://www.gnu.org/licenses/lgpl-3.0.en.html'
+                        distribution = 'repo'
+                    }
+                }
+                // do not provide any dependencies here, since this is a minecraft development
+                /*withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+                    configurations.library.allDependencies.each {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                        dependencyNode.appendNode('scope', 'compile')
+                    }
+                }*/
+            }
+        }
+    }
+}

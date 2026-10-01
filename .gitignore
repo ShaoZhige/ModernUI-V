@@ -1,0 +1,54 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+.vscode
+
+# gradle
+build
+.gradle
+
+# other
+eclipse
+resource
+run
+classes
+*.psd
+*.log
+logs
+
+forge/src/main/resources/assets/modernui/emoji/a.bat
+
+# Project-local Gradle cache used as GRADLE_USER_HOME (~3.1 GB).
+# 项目本地 Gradle 缓存（作为 GRADLE_USER_HOME 使用，约 3.1 GB），不提交。
+gradle-home/
+
+# Local fallback dependencies: third-party mod binaries, kept out of the repo.
+# 本地兜底依赖：第三方 mod 二进制（VulkanMod、ModernUI-Fonts、libs/maven），不随源码提交。
+libs/
+
+# Mixin / WorkBuddy scratch output.
+.mixin.out/
+.workbuddy/
+
+# Mod jar copied to the project root by hand.
+ModernUI-V-Fabric-*.jar
+
+# Machine-specific one-key build script: it hard-codes the local JDK path and
+# the launcher's mods directory, so it stays local and must never be published.
+# 本机专用的一键构建脚本：硬编码了本地 JDK 路径与启动器的 mods 目录，仅保留在本地，不得发布。
+build.bat
+
+# Local-only build notes for moving the project to another machine.
+# 本机自用的换机/离线构建说明，不发布。
+换机器使用说明.md

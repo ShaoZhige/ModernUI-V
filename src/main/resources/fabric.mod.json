@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "id": "modernui",
+  "version": "${version}",
+  "name": "Modern UI - V",
+  "description": "Modern UI - V (现代化UI V版) is an UNOFFICIAL FORK of Modern UI by BloCamLimb, adding VulkanMod compatibility for Minecraft 1.21.1 on Fabric.\nUpstream expects an OpenGL device, which VulkanMod replaces entirely, so this build re-routes UI rendering onto Vulkan and fixes the off-screen UI artifacts on that backend. Everything else -- the UI, fonts, widgets and API -- is unchanged.\nAll credit for Modern UI belongs to BloCamLimb. This is NOT an official build: report issues to this fork, not upstream.\nDistributed under LGPL-3.0-or-later; bundles HarmonyOS Sans SC fonts (license included).",
+  "authors": [
+    "BloCamLimb",
+    "Shao_Zhige"
+  ],
+  "contributors": [
+    "The Android Open Source Project"
+  ],
+  "contact": {
+    "homepage": "https://curseforge.com/minecraft/mc-mods/modern-ui",
+    "sources": "https://github.com/BloCamLimb/ModernUI-MC"
+  },
+  "license": "LGPL-3.0-or-later",
+  "icon": "modernui_logo.png",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "icyllis.modernui.mc.fabric.ModernUIFabric"
+    ],
+    "client": [
+      "icyllis.modernui.mc.fabric.ModernUIFabricClient"
+    ],
+    "modmenu": [
+      "icyllis.modernui.mc.fabric.MuiModMenuApi"
+    ]
+  },
+  "mixins": [
+    "mixins.modernui-fabric.json",
+    "mixins.modernui-textmc.json"
+  ],
+  "accessWidener" : "modernui.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": ">=1.21 <1.21.2",
+    "java": ">=21",
+    "fabric-api": ">=0.90.7",
+    "forgeconfigapiport": ">=21.0.5"
+  },
+  "conflicts": {
+    "blur": "*",
+    "tipthescales": "*"
+  }
+}

@@ -1,0 +1,37 @@
+plugins {
+    id 'agency.highlysuspect.minivan' version '0.5'
+}
+
+repositories {
+    maven {
+        url 'https://repo.spongepowered.org/repository/maven-public/'
+    }
+    maven {
+        url 'https://maven.izzel.io/releases/'
+    }
+    mavenLocal()
+}
+
+minivan {
+    version(minecraft_version)
+}
+
+dependencies {
+    compileOnly 'org.spongepowered:mixin:0.8.5'
+    compileOnly 'org.ow2.asm:asm-tree:9.5'
+
+    // VulkanMod 只作编译期依赖，玩家自己装；VulkanModIntegration / TextTextureBackend
+    // 在 common 模块里就要引用它的类，所以这里也得有一份（与根模块同一份 jar）。
+    compileOnly files("${rootProject.projectDir}/libs/VulkanMod-0.6.7+1.21.1.jar")
+
+    // 分叉的 VulkanMod 兼容层（VulkanModIntegration / TextTextureBackend）直接写 Vulkan 命令，
+    // 而 MC 1.21.1 自带的 LWJGL 里没有 lwjgl-vulkan，arc3d-vulkan 又只把它声明成 provided，
+    // 所以这里得自己补一份，理由与根模块里的同名依赖一致。
+    compileOnly "org.lwjgl:lwjgl-vulkan:3.3.3"
+    compileOnly "org.lwjgl:lwjgl-vma:3.3.3"
+
+    implementation("dev.icyllis:modernui-core:${core_version}")
+    implementation("icyllis.modernui:ModernUI-Markflow:3.12.0") {
+        transitive = false
+    }
+}
