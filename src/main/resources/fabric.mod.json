@@ -12,8 +12,9 @@
     "The Android Open Source Project"
   ],
   "contact": {
-    "homepage": "https://curseforge.com/minecraft/mc-mods/modern-ui",
-    "sources": "https://github.com/BloCamLimb/ModernUI-MC"
+    "homepage": "https://github.com/ShaoZhige/ModernUI-V",
+    "sources": "https://github.com/ShaoZhige/ModernUI-V",
+    "issues": "https://github.com/ShaoZhige/ModernUI-V/issues"
   },
   "license": "LGPL-3.0-or-later",
   "icon": "modernui_logo.png",

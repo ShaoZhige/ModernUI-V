@@ -200,6 +200,7 @@
   "gui.modernui.font_reloaded": "Reloaded default typeface list",
   "modernui.center.home.intro": "Modern UI - V: an unofficial fork of Modern UI, made to work on VulkanMod.\n\n----\n* Upstream expects OpenGL, which VulkanMod replaces entirely: this build re-routes UI rendering onto Vulkan and fixes some issues; everything else is unchanged.\n* This fork bundles HarmonyOS Sans SC and sets it as the default preferred font.",
   "modernui.center.home.notice": "Notes\n\n----\n* Unofficial fork: do NOT report issues with this build to BloCamLimb, the original author.\n* Only needed for Minecraft 1.21.1 + Fabric + VulkanMod; without VulkanMod use upstream.\n* On Vulkan, some features are still missing (e.g. UI screenshots) and some options need a restart. Fonts: HarmonyOS Sans Fonts License Agreement.",
+  "modernui.center.home.download_ss": "Downloads for this fork: %s %s",
   "modernui.center.home.source": "Source: %s",
   "modernui.center.home.upstream_ss": "Upstream releases: %s %s"
 }

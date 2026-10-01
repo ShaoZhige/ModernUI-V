@@ -138,6 +138,19 @@ public class DashboardFragment extends Fragment {
                 var spacer = new View(context);
                 panel.addView(spacer, new LinearLayout.LayoutParams(MATCH_PARENT, 0, 1));
                 {
+                    // 本分支在 CurseForge 与 Modrinth 的发布页
+                    // Release pages of this fork on CurseForge and Modrinth.
+                    var download = new TextView(context);
+                    download.setMovementMethod(LinkMovementMethod.getInstance());
+                    markflow.setMarkdown(download,
+                            I18n.get("modernui.center.home.download_ss",
+                                    "[CURSEFORGE](https://www.curseforge.com/minecraft/mc-mods/modernui-v)",
+                                    "[MODRINTH](https://modrinth.com/project/modernui-v)"));
+                    var params = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+                    params.bottomMargin = content.dp(8);
+                    panel.addView(download, params);
+                }
+                {
                     // 本分支的源代码仓库，链接文案走语言文件
                     // Source repository of this fork; the label comes from the language files.
                     var source = new TextView(context);
